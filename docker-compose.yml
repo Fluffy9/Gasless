@@ -1,0 +1,73 @@
+version: '3'
+services:
+  # some form of proxy/load balancing could be done here
+  # nginx: 
+  #   image: jwilder/nginx-proxy
+  #   ports: 
+  #     - "80:80"
+  #   volumes:
+  #     - /var/run/docker.sock:/tmp/docker.sock:ro
+  landing:
+    image: gasless/landing
+    restart: on-failure:2
+    ports:
+      - "8082:8080"
+    build:
+      context: ./landing
+      dockerfile: Dockerfile
+    env_file: .env
+    environment:
+      - VUE_APP_APP_URL=http://pupcakes.me:8083
+  app:
+    image: gasless/app
+    restart: on-failure:2
+    ports:
+      - "8083:8080"
+    build:
+      context: ./app
+      dockerfile: Dockerfile
+    env_file: .env
+    environment:
+      - VUE_APP_PLAN_0_BASEURL=http://pupcakes.me:8084/api/free/
+      - VUE_APP_PLAN_1_BASEURL=http://pupcakes.me:8085/api/basic/
+      - VUE_APP_PLAN_0_LIMITER=0x8c5767a4D24E22208D9583aB02eE60a1bdCb0c3D
+      - VUE_APP_PLAN_1_LIMITER=0xE16F81f76df4584D2Fb4313727e24612453e7156
+      - VUE_APP_PLAN_1_CHECKOUT_URL=
+      - VUE_APP_SUPPORT_EMAIL=
+  
+  free-plan-runner:
+    image: gasless/runner
+    restart: on-failure:2
+    ports: 
+      - "8084:8080"
+    build:
+      context: ./runner
+      dockerfile: Dockerfile
+    env_file: .env
+    environment:
+      - PLAN=0
+      - WALLETS=1
+      - WALLET_0=
+      - OWNER=
+      - STRIPE=
+      - ENDPOINT_SECRET=
+      - VUE_APP_PLAN_0_LIMITER=0x8c5767a4D24E22208D9583aB02eE60a1bdCb0c3D
+      - VUE_APP_PLAN_1_LIMITER=0xE16F81f76df4584D2Fb4313727e24612453e7156
+  basic-plan-runner:
+    image: gasless/runner
+    restart: on-failure:2
+    ports: 
+      - "8085:8080"
+    build:
+      context: ./runner
+      dockerfile: Dockerfile
+    env_file: .env
+    environment:
+      - PLAN=1  
+      - WALLETS=1
+      - WALLET_0=
+      - OWNER=
+      - STRIPE=
+      - ENDPOINT_SECRET=
+      - VUE_APP_PLAN_0_LIMITER=0x8c5767a4D24E22208D9583aB02eE60a1bdCb0c3D
+      - VUE_APP_PLAN_1_LIMITER=0xE16F81f76df4584D2Fb4313727e24612453e7156
