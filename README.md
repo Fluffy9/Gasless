@@ -79,10 +79,12 @@ You need a domain name or DDNS name for Stripe to send event data to. There are 
 2. [Create a payment link](https://dashboard.stripe.com/payment-links) called Basic Plan. It should cost 15 dollars. This will be put in the root .env file later
 ![payment link](images/payment-link.png)
 
-3. [Add a Webhook](https://dashboard.stripe.com/test/webhooks). This should point to the Basic Plan runner at /webhook. You need to use your custom domain/DDNS name here. Ensure it is set to listen to the `checkout.session.completed` event and the `customer.subscription.deleted` event
+3. [Configure the User Portal](https://dashboard.stripe.com/test/settings/billing/portal) The default settings are fine. 
+
+4. [Add a Webhook](https://dashboard.stripe.com/test/webhooks). This should point to the Basic Plan runner at /webhook. You need to use your custom domain/DDNS name here. Ensure it is set to listen to the `checkout.session.completed` event and the `customer.subscription.deleted` event
 ![webhook](images/webhook.png)
 
-4. Find your Endpoint Secret. Under the new webhook you've created you'll see a signing secret which starts with `whsec_`. You will need to put that in the root .env file later
+5. Find your Endpoint Secret. Under the new webhook you've created you'll see a signing secret which starts with `whsec_`. You will need to put that in the root .env file later
 ![signing secret](images/signing-secret.png)
 
 5. Find your API key. It should start with `sk_test_`
