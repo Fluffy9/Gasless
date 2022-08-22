@@ -38,7 +38,7 @@ GasLimiterFree.sol
 Runner
 * Handles transactions for a specific plan they are whitelisted for
 * Accepts stripe webhooks.
-* Add new paying users to it's contract
+* Add new paying users to its contract
 * Remove users who unsubscribe
 * Forwards all /execute transactions to the contract
 * Only sends the transaction if it doesn't revert
@@ -57,12 +57,12 @@ Landing Page
 ## Considerations
 Miscellaneous explanations
 ### Hard Cap vs Soft Cap
-The GasLimiter and GasLimiterFree contracts will immediately revert if a user has used more gas than they have available for the current period. This is a hard cap. Gasless displays a set number for the users quota and this may not match what the contract limit is. It can be more user friendly to have a lower number in the UI but higher number in the contract. This means a user is more likely to stop sending transactions before getting a revert error message.
+The GasLimiter and GasLimiterFree contracts will immediately revert if a user has used more gas than they have available for the current period. This is a hard cap. Gasless displays a set number for the user's quota and this may not match what the contract limit is. It can be more user friendly to have a lower number in the UI but higher number in the contract. This means a user is more likely to stop sending transactions before getting a revert error message.
 
-So both the UI and the API will return numbers set through the environment variables. These may or may not be the same as the actual contract limit
+Both the UI and the API will return numbers set through the environment variables. These may or may not be the same as the actual contract limit
 
 ### Scaling / Addressing Failure
-This application is built to be simple but scale to serve many times more users with simple changes in settings. The `docker-compose.yaml` file sets up two runners by default. One to serve the Basic Plan and one to serve the Free Plan. You can easily copy the configuration to have more runners. In this case, it would be ideal to have Nginx or some other load balancer strategy set up. In the case where the bottleneck is the number of wallets the runner has, that is easily fixed by adding more to the environment variables.
+This application is built to be simple but scale to serve many times more users with simple changes in settings. The `docker-compose.yaml` file sets up two runners by default. One to serve the Basic Plan and one to serve the Free Plan. You can easily copy the configuration to have more runners. In this case, it would be ideal to have Nginx, or some other load balancer strategy set up. In the case where the bottleneck is the number of wallets the runner has, that is easily fixed by adding more to the environment variables.
 
 If a service fails for whatever reason (landing, app, runners) the current policy is to try and restart it twice. This can also be modified in the `docker-compose.yml`
 
@@ -72,11 +72,11 @@ If the only runner is down while a user is making a transaction, they will just 
 
 ## Deployment
 ### Set up a domain name or DDNS name
-You need a domain name or DDNS name for Stripe to send event data to. There are too many out of scope factors for us to discuss here. Just ensure you can SSH into your server with the domain/DDNS and without relying on it's IP address and you're probably good
+You need a domain name or DDNS name for Stripe to send event data to. There are too many out-of-scope factors for us to discuss here. Just ensure you can SSH into your server with the domain/DDNS and without relying on its IP address and you're probably good
 ### Setup a Stripe Test Account
 1. Create an account with [Stripe](https://dashboard.stripe.com/login)
 
-2. [Create a payment link](https://dashboard.stripe.com/payment-links) called Basic Plan. It should cost 15 dollars. This will be put in the root .env file later
+2. [Create a payment link](https://dashboard.stripe.com/payment-links) called Basic Plan. It should cost 15 dollars and the billing period should be monthly. This will be put in the root .env file later
 ![payment link](images/payment-link.png)
 
 3. [Configure the User Portal](https://dashboard.stripe.com/test/settings/billing/portal) The default settings are fine. 
@@ -87,24 +87,36 @@ You need a domain name or DDNS name for Stripe to send event data to. There are 
 5. Find your Endpoint Secret. Under the new webhook you've created you'll see a signing secret which starts with `whsec_`. You will need to put that in the root .env file later
 ![signing secret](images/signing-secret.png)
 
-5. Find your API key. It should start with `sk_test_`
+5. Find your API key on your [dashboard](https://dashboard.stripe.com/dashboard). It should start with `sk_test_`
 ![secret key](images/secret-key.png)
 
 ### Deploy the contracts
+You'll find the source code needed in [this repo](https://github.com/Fluffy9/Gasless-Contracts)
 1. Copy the code of GasLimiterFree.sol into [Remix](https://remix.ethereum.org). 
 
 2. Compile it. For constructor arguments, set `10000000000000000`(0.01 LYXe) and `Free` and deploy it using your Metamask wallet containing enough funds to cover gas.
 
-3. On your newly deployed contract, set the addresses of the wallets you'll use in your Free runner as whitelisted. 
+3. On your newly deployed contract, set the wallet address you've used as whitelisted. 
 ![whitelisted](images/whitelistedfree.png)
 
-4. Repeat steps 1-3 but copy the GasLimiter.sol contract, use `1000000000000000000`(1 LYXe) and `Basic` as constructor arguments, and whitelist the addresses of the wallets you'll use in your Basic runner for this new contract.
+4. Repeat steps 1-3 but copy the GasLimiter.sol contract, use `1000000000000000000`(1 LYXe) and `Basic` as constructor arguments, and set the wallet address you've used as whitelisted.
 
 ### Deploy the Landing/App/Runners
-Git clone the this repository. Modify the docker-compose.yml file in the root with the variables we've set up in the previous steps
+Git clone this repository. Modify the docker-compose.yml file in the root with the variables we've set up in the previous steps
+
+
 ```
-git clone https://github.com/Fluffy9/Gasless-Landing .
+git clone https://github.com/Fluffy9/Gasless .
 ```
+
+Specifically: 
+* `VUE_APP_PLAN_1_CHECKOUT_URL` should be your stripe payment link,
+* `STRIPE` should be your stripe API key
+* `ENDPOINT_SECRET` should be your endpoint secret starting with `whsec`
+* `VUE_APP_PLAN_0_LIMITER` in all instances should be the address of the `GasLimiterFree.sol` that you deployed
+* `VUE_APP_PLAN_1_LIMITER` in all instances should be the address of the `GasLimiter.sol` that you deployed
+* `OWNER` should be the private key of the wallet you used to deploy `GasLimiterFree.sol` and `GasLimiter.sol`
+* `WALLET_0` in all instances should be the same as `OWNER` in this case
 
 Git clone Landing, App and Runner repositories in subdirectories
 ```
@@ -116,6 +128,15 @@ git clone https://github.com/Fluffy9/Gasless-App ./app
 ```
 git clone https://github.com/Fluffy9/Gasless-Runner ./runner
 ```
+Your directory structure should look like this
+```
+.
+└── Gasless/
+    ├── app
+    ├── landing
+    └── runner
+```
+
 Build and deploy
 ```
 docker-compose up --build
@@ -130,3 +151,6 @@ Stop/Destroy
 ```
 docker-compose down
 ```
+
+## Warning
+Don't push images you build to public hosts like DockerHub. This will compromise your private keys!
