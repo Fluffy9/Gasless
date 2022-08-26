@@ -1,6 +1,19 @@
 # Gasless
 A transaction relayer Saas for interacting with the Lukso blockchain without the need for gas. Users can purchase a subscription to gain access to a monthly usage quota.
+
+## Info
+Project Name: Gasless Relayer 
+
+Team: Fluffy9 
+
+Email: gasless@pupcakes.me
+
+
 ## Video
+
+[Dashboard Overview](https://youtu.be/tQKNo_3pGRU)
+
+[Technical Overview](https://youtu.be/Y5tbtKfiHtQ)
 
 ## Demos
 * Landing: [Source](https://github.com/Fluffy9/Gasless-Landing) | [Demo](http://pupcakes.me:8082)
@@ -62,7 +75,7 @@ The GasLimiter and GasLimiterFree contracts will immediately revert if a user ha
 Both the UI and the API will return numbers set through the environment variables. These may or may not be the same as the actual contract limit
 
 ### Scaling / Addressing Failure
-This application is built to be simple but scale to serve many times more users with simple changes in settings. The `docker-compose.yaml` file sets up two runners by default. One to serve the Basic Plan and one to serve the Free Plan. You can easily copy the configuration to have more runners. In this case, it would be ideal to have Nginx, or some other load balancer strategy set up. In the case where the bottleneck is the number of wallets the runner has, that is easily fixed by adding more to the environment variables.
+This application is built to be simple but scale to serve many times more users with simple changes in settings. The `docker-compose.yml` file sets up two runners by default. One to serve the Basic Plan and one to serve the Free Plan. You can easily copy the configuration to have more runners. In this case, it would be ideal to have Nginx, or some other load balancer strategy set up. In the case where the bottleneck is the number of wallets the runner has, that is easily fixed by adding more to the environment variables.
 
 If a service fails for whatever reason (landing, app, runners) the current policy is to try and restart it twice. This can also be modified in the `docker-compose.yml`
 
