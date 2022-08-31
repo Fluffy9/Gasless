@@ -19,7 +19,7 @@ Email: gasless@pupcakes.me
 * Landing: [Source](https://github.com/Fluffy9/Gasless-Landing) | [Demo](http://pupcakes.me:8082)
 * App: [Source](https://github.com/Fluffy9/Gasless-App) | [Demo](http://pupcakes.me:8083)
 * Contracts: [Source](https://github.com/Fluffy9/Gasless-Contracts) | [GasLimiter](https://explorer.execution.l16.lukso.network/address/0xE16F81f76df4584D2Fb4313727e24612453e7156) | [GasLimiterFree](https://explorer.execution.l16.lukso.network/address/0x8c5767a4D24E22208D9583aB02eE60a1bdCb0c3D)
-* Runner: [Source](https://github.com/Fluffy9/Gasless-Runner) | [Free](http://pupcakes.me:8083) | [Basic](http://pupcakes.me:8084)
+* Runner: [Source](https://github.com/Fluffy9/Gasless-Runner) | [Free](http://pupcakes.me:8084) | [Basic](http://pupcakes.me:8085)
 
 ## Organization of Code
 There are 3 applications that make up the Gasless Saas. The landing page, the web app, and the runner. They can be run together using `docker-compose` to deploy the entire project or they can be run individually for testing/development. Each application has a .env file that will be used when run individually. When run together, the `docker-compose.yml` pulls from the root .env file for default values. The variables defined within the docker-compose.yml environment section override the ones from the file. For someone who simply wants to deploy the entire project, modifying the variables in the `docker-compose.yml` is enough. For doing development on an individual application, you will need to add your variables into it's .env file  
@@ -31,6 +31,7 @@ GasLimiter.sol
 * Proxies executeRelayCall()
 * Keeps track of gas spent by the user
 * Keeps track of user's quota vs time period
+* Hard cap on gas usage
 * Will revert if anything goes wrong
 * Only whitelisted addresses can execute transactions on behalf of users
 * The owner can add and remove users
@@ -49,7 +50,7 @@ GasLimiterFree.sol
 
 
 Runner
-* Handles transactions for a specific plan they are whitelisted for
+* Handles transactions for a specific plan contract they are whitelisted for
 * Accepts stripe webhooks.
 * Add new paying users to its contract
 * Remove users who unsubscribe
@@ -61,12 +62,35 @@ Runner
 App
 * Shows plan details, usage, limits and past transactions
 * Handles Stripe checkout
+* Allows users to cancel their subscription
 * Quick endpoint tests
 
 Landing Page
 * Shows price details
 * Shows general service information
 * Links to App
+## Potential Future Developments
+A few ideas of how development on this project may continue
+
+### Partnership with Wallets
+As of now, you need to already have an UP to login and use the API endpoints. When a user friendly wallet service is available, it would be a great opportunity for a partnership. A new endpoint could be added to Gasless simply to create a new UP. The partnering wallet could use that to create free UP for users without them having to interact with the blockchain at all. Gasless would then use this wallet service as the login point for the user dashboard.
+
+### Subgraph Support
+When subgraph access is available that would greatly enhance the performance of the transaction list
+
+### User Run Runner Bots
+Instead of using a whitelist, we could drop the burden of managing runner bots entirely by creating an incentive for external users to run their own (MEV opportunity). A user run bot would listen to /execute transactions and send these to the appropriate contract. Using the logs created from this, we can refund the gas they spent and also add a small reward. This would eliminate tracking wallet balances, infrastructure load, and it would be very fast as there is now competition to get the transaction relayed
+
+It would require a little bit of work to ensure there is no unfair play possible by removing the whitelist. It would also likely mean separating out the Stripe webhooks from the runner bot to avoid leaking private data.
+
+### DAO Owned Software / Licensing
+Due to the customizable nature of Gasless, it could be a good base for other relayer services to build off of. This could be done with some form of paid licensing structure. The core software could be DAO owned and run. This seperates the burden of building and managing customers to: 
+* Using a DAO to build and manage the software development
+* Having 3rd parties who focus on customer acquisition and management
+
+### Usage based quota / share quota (Paid plans only)
+While A fixed price is easier for users to understand (prevents overspending) and easier to implement, users could get more benefit from their paid plans with further options. Usage based billing would allow power users to make more transactions than currently offered. Sharing quota could bring in new customers and could be easily implemented into the smart contract without Stripe modifications. 
+
 ## Considerations
 Miscellaneous explanations
 ### Hard Cap vs Soft Cap
