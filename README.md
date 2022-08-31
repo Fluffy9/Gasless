@@ -96,7 +96,7 @@ Miscellaneous explanations
 ### Hard Cap vs Soft Cap
 The GasLimiter and GasLimiterFree contracts will immediately revert if a user has used more gas than they have available for the current period. This is a hard cap. Gasless displays a set number for the user's quota and this may not match what the contract limit is. It can be more user friendly to have a lower number in the UI but higher number in the contract. This means a user is more likely to stop sending transactions before getting a revert error message.
 
-Both the UI and the API will return numbers set through the environment variables. These may or may not be the same as the actual contract limit
+Both the UI and the API will return numbers set through the environment variables. These may or may not be the same as the actual contract limit. If you don't want to have a soft cap, ensure that the `VUE_APP_PLAN_X_QUOTA` variables are set to the same number as the contract's `_limit` constructor argument
 
 ### Scaling / Addressing Failure
 This application is built to be simple but scale to serve many times more users with simple changes in settings. The `docker-compose.yml` file sets up two runners by default. One to serve the Basic Plan and one to serve the Free Plan. You can easily copy the configuration to have more runners. In this case, it would be ideal to have Nginx, or some other load balancer strategy set up. In the case where the bottleneck is the number of wallets the runner has, that is easily fixed by adding more to the environment variables.
