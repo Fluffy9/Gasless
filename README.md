@@ -1,5 +1,5 @@
 # Gasless
-A transaction relayer Saas for interacting with the Lukso blockchain without the need for gas. Users can purchase a subscription to gain access to a monthly usage quota.
+A transaction relayer SaaS for interacting with the Lukso blockchain without the need for gas. Users can purchase a subscription to gain access to a monthly usage quota.
 
 ## Info
 Project Name: Gasless Relayer 
@@ -22,7 +22,7 @@ Email: gasless@pupcakes.me
 * Runner: [Source](https://github.com/Fluffy9/Gasless-Runner) | [Free](http://pupcakes.me:8084) | [Basic](http://pupcakes.me:8085)
 
 ## Organization of Code
-There are 3 applications that make up the Gasless Saas. The landing page, the web app, and the runner. They can be run together using `docker-compose` to deploy the entire project or they can be run individually for testing/development. Each application has a .env file that will be used when run individually. When run together, the `docker-compose.yml` pulls from the root .env file for default values. The variables defined within the docker-compose.yml environment section override the ones from the file. For someone who simply wants to deploy the entire project, modifying the variables in the `docker-compose.yml` is enough. For doing development on an individual application, you will need to add your variables into it's .env file  
+There are 3 applications that make up the Gasless Saas. The landing page, the web app, and the runner. They can be run together using `docker-compose` to deploy the entire project or they can be run individually for testing/development. Each application has a .env file that will be used when run individually. When run together, the `docker-compose.yml` pulls from the root .env file for default values. The variables defined within the `docker-compose.yml` environment section override the ones from the file. For someone who simply wants to deploy the entire project, modifying the variables in the `docker-compose.yml` is enough. For doing development on an individual application, you will need to add your variables into its .env file  
 
 ## Project Architecture
 ![diagram](/images/diagram.drawio.svg)
@@ -60,7 +60,7 @@ Runner
 * Returns the plan quota set from the environment (soft cap)
 
 App
-* Shows plan details, usage, limits and past transactions
+* Shows plan details, usage, limits, and past transactions
 * Handles Stripe checkout
 * Allows users to cancel their subscription
 * Quick endpoint tests
@@ -70,31 +70,31 @@ Landing Page
 * Shows general service information
 * Links to App
 ## Potential Future Developments
-A few ideas of how development on this project may continue
+A few ideas of how development on this project may continue:
 
 ### Partnership with Wallets
-As of now, you need to already have an UP to login and use the API endpoints. When a user friendly wallet service is available, it would be a great opportunity for a partnership. A new endpoint could be added to Gasless simply to create a new UP. The partnering wallet could use that to create free UP for users without them having to interact with the blockchain at all. Gasless would then use this wallet service as the login point for the user dashboard.
+As of now, you need to already have an UP to login and use the API endpoints. When a user-friendly wallet service is available, it would be a great opportunity for a partnership. A new endpoint could be added to Gasless simply to create a new UP. The partnering wallet could use that to create free UP for users without them having to interact with the blockchain at all. Gasless would then use this wallet service as the login point for the user dashboard.
 
 ### Subgraph Support
-When subgraph access is available that would greatly enhance the performance of the transaction list
+When subgraph access is available that would greatly enhance the performance of the transaction list.
 
 ### User Run Runner Bots
-Instead of using a whitelist, we could drop the burden of managing runner bots entirely by creating an incentive for external users to run their own (MEV opportunity). A user run bot would listen to /execute transactions and send these to the appropriate contract. Using the logs created from this, we can refund the gas they spent and also add a small reward. This would eliminate tracking wallet balances, infrastructure load, and it would be very fast as there is now competition to get the transaction relayed
+Instead of using a whitelist, we could drop the burden of managing runner bots entirely by creating an incentive for external users to run their own (MEV opportunity). A user-run bot would listen to /execute transactions and send these to the appropriate contract. Using the logs created from this, we can refund the gas they spent and also add a small reward. This would eliminate tracking wallet balances, infrastructure load, and it would be very fast, as there is now competition to get the transaction relayed
 
 It would require a little bit of work to ensure there is no unfair play possible by removing the whitelist. It would also likely mean separating out the Stripe webhooks from the runner bot to avoid leaking private data.
 
 ### DAO Owned Software / Licensing
-Due to the customizable nature of Gasless, it could be a good base for other relayer services to build off of. This could be done with some form of paid licensing structure. The core software could be DAO owned and run. This seperates the burden of building and managing customers to: 
+Due to the customizable nature of Gasless, it could be a good base for other relayer services to build off of. This could be done with some form of paid licensing structure. The core software could be DAO owned and run. This separates the burden of building and managing customers to: 
 * Using a DAO to build and manage the software development
 * Having 3rd parties who focus on customer acquisition and management
 
-### Usage based quota / share quota (Paid plans only)
-While A fixed price is easier for users to understand (prevents overspending) and easier to implement, users could get more benefit from their paid plans with further options. Usage based billing would allow power users to make more transactions than currently offered. Sharing quota could bring in new customers and could be easily implemented into the smart contract without Stripe modifications. 
+### Usage-based quota / share quota (Paid plans only)
+While a fixed price is easier for users to understand (prevents overspending) and easier to implement, users could get more benefit from their paid plans with further options. Usage-based billing would allow power users to make more transactions than currently offered. Sharing quota could bring in new customers and could be easily implemented into the smart contract without Stripe modifications. 
 
 ## Considerations
 Miscellaneous explanations
 ### Hard Cap vs Soft Cap
-The GasLimiter and GasLimiterFree contracts will immediately revert if a user has used more gas than they have available for the current period. This is a hard cap. Gasless displays a set number for the user's quota and this may not match what the contract limit is. It can be more user friendly to have a lower number in the UI but higher number in the contract. This means a user is more likely to stop sending transactions before getting a revert error message.
+The GasLimiter and GasLimiterFree contracts will immediately revert if a user has used more gas than they have available for the current period. This is a hard cap. Gasless displays a set number for the user's quota and this may not match what the contract limit is. It can be more user-friendly to have a lower number in the UI but higher number in the contract. This means a user is more likely to stop sending transactions before getting a revert error message.
 
 Both the UI and the API will return numbers set through the environment variables. These may or may not be the same as the actual contract limit. If you don't want to have a soft cap, ensure that the `VUE_APP_PLAN_X_QUOTA` variables are set to the same number as the contract's `_limit` constructor argument
 
@@ -131,7 +131,7 @@ You need a domain name or DDNS name for Stripe to send event data to. There are 
 You'll find the source code needed in [this repo](https://github.com/Fluffy9/Gasless-Contracts)
 1. Copy the code of GasLimiterFree.sol into [Remix](https://remix.ethereum.org). 
 
-2. Compile it. For constructor arguments, set `10000000000000000`(0.01 LYXe) and `Free` and deploy it using your Metamask wallet containing enough funds to cover gas.
+2. Compile it. For constructor arguments, set `10000000000000000`(0.01 LYXe) and `Free` and deploy it using your MetaMask wallet containing enough funds to cover gas.
 
 3. On your newly deployed contract, set the wallet address you've used as whitelisted. 
 ![whitelisted](images/whitelistedfree.png)
@@ -147,7 +147,7 @@ git clone https://github.com/Fluffy9/Gasless .
 ```
 
 Specifically: 
-* `VUE_APP_PLAN_1_CHECKOUT_URL` should be your stripe payment link,
+* `VUE_APP_PLAN_1_CHECKOUT_URL` should be your stripe payment link
 * `STRIPE` should be your stripe API key
 * `ENDPOINT_SECRET` should be your endpoint secret starting with `whsec`
 * `VUE_APP_PLAN_0_LIMITER` in all instances should be the address of the `GasLimiterFree.sol` that you deployed
@@ -190,4 +190,4 @@ docker-compose down
 ```
 
 ## Warning
-Don't push images you build to public hosts like DockerHub. This will compromise your private keys!
+Don't push images you build to public hosts like Docker Hub. This will compromise your private keys!
